@@ -25,8 +25,30 @@ video{width:100%;height:auto;display:block;background:#000;object-fit:contain}
 .channels-section{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px}
 .channels{display:grid;grid-template-columns:1fr 1fr;gap:3px}
 .ch{display:flex;flex-direction:column;gap:2px;padding:4px;background:#14121a;border:1px solid #333;align-items:stretch;text-align:center;border-left:3px solid #ef4444}
-.ch-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word;line-height:1.2}
-.btn{background:#ef4444;color:#fff;border:none;padding:4px 6px;font-size:8px;font-weight:bold;cursor:pointer;width:100%;flex-shrink:0}
+.ch:has(.btn.selected){border-color:#22c55e;background:#18251d}.ch-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word;line-height:1.2}
+.btn{
+background:#ef4444;
+color:#fff;
+border:none;
+padding:5px 6px;
+font-size:9px;
+font-weight:bold;
+cursor:pointer;
+width:100%;
+flex-shrink:0;
+border-radius:2px;
+}
+.btn.selected{
+background:#22c55e !important;
+color:#fff;
+outline:2px solid #86efac;
+outline-offset:-2px;
+}
+.btn:active,.btn:focus{
+outline:2px solid #86efac;
+outline-offset:-2px;
+}
+
 .btn:active,.btn:focus{background:#ef4444;opacity:1;outline:none}
 footer{text-align:center;padding:6px;font-size:8px;color:#666;border-top:1px solid #333;flex-shrink:0}
 ::-webkit-scrollbar{width:4px}
@@ -138,138 +160,110 @@ var channels=[
 ["Zee Bollywood","https://s3.itcnbd.live/channel/a5979fd53c01d1b2.m3u8"],
 ["Star Gold","https://s3.itcnbd.live/channel/f5dd87a5c3b03131.m3u8"]
 ];
-var v=document.getElementById('player'),h=null,title=document.getElementById('videoTitle'),cGrid=document.getElementById('channels');
-var retryTimer=null, currentUrl='', currentName='', retryCount=0;
+var v=document.getElementById('player'),
+    h=null,
+    title=document.getElementById('videoTitle'),
+    cGrid=document.getElementById('channels'),
+    selectedButton=null;
 
-function cleanupPlayer(){
-  if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
-  if(h){try{h.destroy();}catch(e){} h=null;}
-  try{v.pause();}catch(e){}
-  v.removeAttribute('src');
-  try{v.load();}catch(e){}
-}
-
-function nativeHls(){
-  return !!(v.canPlayType && (
-    v.canPlayType('application/vnd.apple.mpegurl') ||
-    v.canPlayType('application/x-mpegURL')
-  ));
-}
-
-function startNative(url){
-  cleanupPlayer();
-  currentUrl=url;
-  v.src=url;
-  v.load();
-  var p=v.play();
-  if(p&&p.catch)p.catch(function(){});
-}
-
-function startHls(url){
-  if(typeof Hls==='undefined' || !Hls.isSupported()) return false;
-
-  cleanupPlayer();
-
-  h=new Hls({
-    enableWorker:false,
-    lowLatencyMode:false,
-    maxBufferLength:6,
-    maxMaxBufferLength:10,
-    liveSyncDurationCount:3,
-    liveMaxLatencyDurationCount:6,
-    fragLoadingTimeOut:10000,
-    manifestLoadingTimeOut:10000,
-    levelLoadingTimeOut:10000,
-    fragLoadingMaxRetry:2,
-    manifestLoadingMaxRetry:2,
-    levelLoadingMaxRetry:2,
-    backBufferLength:0
-  });
-
-  h.loadSource(url);
-  h.attachMedia(v);
-
-  h.on(Hls.Events.MANIFEST_PARSED,function(){
-    retryCount=0;
-    var p=v.play();
-    if(p&&p.catch)p.catch(function(){});
-  });
-
-  h.on(Hls.Events.ERROR,function(event,data){
-    if(!data||!data.fatal)return;
-
-    if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
-      try{h.recoverMediaError();return;}catch(e){}
-    }
-
-    if(data.type===Hls.ErrorTypes.NETWORK_ERROR && retryCount<2){
-      retryCount++;
-      try{h.startLoad();return;}catch(e){}
-    }
-
-    if(retryCount<2){
-      retryCount++;
-      retryTimer=setTimeout(function(){playUrl(currentName,currentUrl);},1500);
-    }
-  });
-
-  return true;
-}
-
-function playUrl(name,url){
-  if(!url)return;
-  currentName=name;
-  currentUrl=url;
-  retryCount=0;
-  title.textContent=name;
-
-  // Native HLS is generally lighter and more compatible on feature-phone browsers.
-  if(nativeHls()){
-    startNative(url);
-    return;
+function clearSelected(){
+  if(selectedButton){
+    selectedButton.classList.remove('selected');
   }
+}
 
-  if(!startHls(url)){
-    title.textContent=name+' — unsupported stream';
+function selectButton(b){
+  clearSelected();
+  selectedButton=b;
+  if(b) b.classList.add('selected');
+}
+
+function stopHls(){
+  if(h){
+    try{h.destroy();}catch(e){}
+    h=null;
   }
 }
 
 function play(b){
-  playUrl(b.getAttribute('data-name'),b.getAttribute('data-stream'));
+  var n=b.getAttribute('data-name'),
+      u=b.getAttribute('data-stream');
+
+  if(!u)return;
+
+  selectButton(b);
+  title.textContent=n;
+  stopHls();
+
+  // Prefer hls.js on browsers that support it.
+  if(typeof Hls!=='undefined' && Hls.isSupported()){
+    h=new Hls({
+      enableWorker:false,
+      lowLatencyMode:false,
+      maxBufferLength:5,
+      maxMaxBufferLength:8,
+      liveSyncDurationCount:3,
+      fragLoadingTimeOut:10000,
+      manifestLoadingTimeOut:10000,
+      levelLoadingTimeOut:10000
+    });
+
+    h.attachMedia(v);
+
+    h.on(Hls.Events.MEDIA_ATTACHED,function(){
+      h.loadSource(u);
+    });
+
+    h.on(Hls.Events.MANIFEST_PARSED,function(){
+      var p=v.play();
+      if(p&&p.catch)p.catch(function(){});
+    });
+
+    h.on(Hls.Events.ERROR,function(event,data){
+      if(!data || !data.fatal)return;
+
+      if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
+        try{h.recoverMediaError();}catch(e){}
+      }else if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
+        try{h.startLoad();}catch(e){}
+      }
+    });
+
+  }else{
+    // Native HLS fallback for browsers that provide it.
+    v.src=u;
+    v.load();
+    var p=v.play();
+    if(p&&p.catch)p.catch(function(){});
+  }
 }
 
-v.addEventListener('error',function(){
-  // If native playback fails, try HLS.js when available.
-  if(currentUrl && typeof Hls!=='undefined' && Hls.isSupported() && !h){
-    startHls(currentUrl);
-  }
+// Generate the channel buttons.
+channels.forEach(function(ch){
+  var div=document.createElement('div');
+  div.className='ch';
+
+  var name=document.createElement('span');
+  name.className='ch-name';
+  name.textContent=ch[0];
+
+  var btn=document.createElement('button');
+  btn.className='btn';
+  btn.type='button';
+  btn.textContent='PLAY';
+  btn.setAttribute('data-name',ch[0]);
+  btn.setAttribute('data-stream',ch[1]);
+  btn.onclick=function(){
+    play(this);
+  };
+
+  div.appendChild(name);
+  div.appendChild(btn);
+  cGrid.appendChild(div);
 });
 
-v.addEventListener('stalled',function(){
-  if(!currentUrl)return;
-  if(retryTimer)clearTimeout(retryTimer);
-  retryTimer=setTimeout(function(){
-    try{
-      if(v.readyState<3) v.load();
-    }catch(e){}
-  },4000);
-});
-channels.forEach(function(ch){
-var div=document.createElement('div');
-div.className='ch';
-div.innerHTML='<span class="ch-name">'+ch[0]+'</span><button class="btn" data-name="'+ch[0]+'" data-stream="'+ch[1]+'">PLAY</button>';
-div.querySelector('.btn').onclick=function(){play(this);};
-cGrid.appendChild(div);
-});
-window.addEventListener('load',function(){
-  if(channels.length>0){
-    var first=cGrid.querySelector('.btn');
-    if(first){
-      title.textContent='Select Channel';
-      first.blur();
-    }
-  }
-});
+// Do not automatically open a channel.
+title.textContent='Select Channel';
 </script>
 
 </body>
