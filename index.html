@@ -2,427 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tasin TV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Rangdhonu Tv - Lite</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{max-width:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-body{font-family:Arial,sans-serif;background:#0d0f14;color:#eaeaea;font-size:12px;line-height:1.3}
-header{background:#14171f;padding:8px 6px;border-bottom:2px solid #e6c300;text-align:center}
-h1{font-size:15px;color:#fff;letter-spacing:.3px}
-p{font-size:9px;color:#9aa0aa;margin-top:1px}
-.notice{background:#1b1e27;border-left:3px solid #e6c300;padding:5px 6px;font-size:9px;color:#c9cdd3;margin:6px}
-.player-wrap{margin:6px;background:#000;border:1px solid #262a33}
-video{width:100%;display:block;background:#000;height:135px;object-fit:contain}
-.player-label{padding:4px 6px;font-size:10px;background:#14171f;color:#fff;border-top:1px solid #262a33;min-height:16px}
-.direct-link{display:block;text-align:center;background:#1b1e27;color:#e6c300;border:1px solid #262a33;padding:5px;font-size:9px;text-decoration:none;-webkit-tap-highlight-color:transparent}
-.direct-link:focus{outline:2px solid #fff}
-.channel-list{margin:6px}
-.channel-item{display:flex;align-items:center;justify-content:space-between;background:#14171f;border:1px solid #262a33;border-top:none;padding:6px;gap:4px}
-.channel-item:first-child{border-top:1px solid #262a33}
-.channel-name{font-size:11px;color:#eaeaea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
-.channel-num{display:inline-block;color:#e6c300;font-weight:bold;margin-right:4px;flex-shrink:0}
-.watch-btn{background:#e6c300;color:#1a1a1a;border:none;padding:5px 9px;font-size:10px;font-weight:bold;flex-shrink:0;-webkit-tap-highlight-color:transparent}
-.watch-btn:focus{outline:2px solid #fff}
-.watch-btn:active{opacity:.9}
-footer{text-align:center;padding:10px 6px;font-size:9px;color:#8a8f98;border-top:1px solid #262a33;margin-top:6px}
+/* ========== FEATURE PHONE OPTIMIZED THEME ========== */
+body {
+    background: #000000;
+    color: #ffffff;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Clear D-Pad Focus State */
+a:focus, button:focus, [tabindex]:focus, input:focus {
+    outline: 3px solid #ffcc00 !important;
+    background-color: #333333 !important;
+}
+
+/* Basic Header */
+.header {
+    background: #111111;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #333;
+}
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #a78bfa;
+    text-decoration: none;
+}
+.nav-menu {
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.nav-menu a {
+    color: #b8b0d0;
+    font-size: 12px;
+    text-decoration: none;
+    padding: 5px;
+}
+
+/* Video Section */
+.video-wrapper {
+    width: 100%;
+    background: #111;
+    border-bottom: 2px solid #333;
+}
+video {
+    width: 100%;
+    max-height: 240px;
+    background: #000;
+    display: block;
+}
+.now-playing {
+    padding: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    background: #222;
+}
+
+/* Categories */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px;
+    background: #000;
+}
+.chip {
+    padding: 6px 12px;
+    background: #222;
+    border: 1px solid #444;
+    color: #ccc;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.chip.active {
+    background: #8b5cf6;
+    color: #fff;
+    border-color: #8b5cf6;
+}
+
+/* Channel List (Vertical for small screens) */
+.channel-grid {
+    display: block;
+    padding: 0;
+    margin: 0;
+}
+.channel-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #222;
+    cursor: pointer;
+}
+.channel-card.active-card {
+    background: #1a1a2e;
+    border-left: 4px solid #8b5cf6;
+}
+.card-thumb {
+    width: 50px;
+    height: 50px;
+    background: #111;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+.card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.card-body h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #fff;
+}
+.category {
+    font-size: 11px;
+    color: #888;
+}
+
+/* Hide unsupported/heavy elements */
+.video-overlay, .nav-btn, .search-overlay, .telegram-float, #rdGate, #premiumAdOverlay {
+    display: none !important;
+}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Tasin TV</h1>
-  <p>Watch Live Sports - Movies - Entertainment</p>
+<header class="header">
+    <a class="logo" tabindex="0" href="#">Rangdhonu Lite</a>
+    <nav class="nav-menu">
+        <a tabindex="0" href="#" onclick="alert('Home')">Home</a>
+        <a tabindex="0" href="#" onclick="alert('About: Premium IPTV')">About</a>
+    </nav>
 </header>
 
-<div class="notice">
-  Channels may take a few seconds to load. If a channel doesn't work, please try again shortly.
+<div class="video-wrapper">
+    <video controls id="livePlayer" poster="https://via.placeholder.com/320x240/12121a/8b5cf6?text=Play"></video>
+    <div class="now-playing" id="videoTitle">Select a Channel</div>
 </div>
 
-<div class="player-wrap">
-  <video id="player" controls playsinline preload="none"></video>
-  <div class="player-label" id="nowPlaying">Select a channel</div>
-</div>
-<div class="direct-link-wrap" id="directLinkWrap" style="display:none; margin:0 10px 10px 10px;">
-  <a id="directLink" href="#" class="direct-link">Tap here if video doesn't start</a>
-</div>
-
-<div class="channel-list">
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#1</span>SONY AATH</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/sonnyath_copy_kore_lav_nai/playlist.m3u8?expires=1787024055&sig=_zucrr1Zvvq8Ev5hcPEUqSs8pMsrXo82T5G3RgvNQsQ">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#2</span>Sony Pix</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonypix_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#3</span>Sangeet Bangla</span>
-    <button class="watch-btn" data-src="https://s1.itcnbd.live/SangeetBangla/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#4</span>Jalsha Movies</span>
-    <button class="watch-btn" data-src="https://footfytv.pro/proxy/direct?url=http%3A%2F%2F103.165.93.31%3A8095%2FjalshaMovies%2Ftracks-v1a1%2Fmono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#5</span>Star Sports 1</span>
-    <button class="watch-btn" data-src="https://tvex.easypecker.com/StarSports1/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#6</span>Star Sports 2</span>
-    <button class="watch-btn" data-src="https://tvsen7.aynascope.net/ssport2hd/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#7</span>Star Sports SL 1</span>
-    <button class="watch-btn" data-src="https://s3.itcnbd.live/channel/ea25a516d781cb1c.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#8</span>B4U Movie</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=b4u_movies&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#9</span>HUM</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=hum_masala&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#10</span>Animal Planet</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=animal_planet_sd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#11</span>B4U Music</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/?url=https%3A%2F%2Fs3.itcnbd.live%2Fchannel%2F6f6b7b6d25fbd0e6.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#12</span>Zee Bollywood</span>
-    <button class="watch-btn" data-src="https://s3.itcnbd.live/channel/a5979fd53c01d1b2.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#13</span>Star Gold</span>
-    <button class="watch-btn" data-src="https://s3.itcnbd.live/channel/f5dd87a5c3b03131.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#14</span>Channel 1</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/Channel1/playlist.m3u8?expires=1787005390&sig=otCHvitY_0Ze1_XCFnzDJ4o5y1RlBD5gF94c4438KaQ">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#15</span>Channel 24</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/chaneel24/playlist.m3u8?expires=1787005029&sig=63R7CX6CjMKYowSUiuO3XQprDJCoO7dh-IGaB-UEKrw">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#16</span>Ekattor</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ekattor_copy_kore_lav_nai_mc_tor_ki_baprer_link/playlist.m3u8?expires=1787024812&sig=l6tMtp9UC5RfJRsC_bzIEqr112_UE5krZUVBg48dmG4">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#17</span>Independent</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/indepinden/playlist.m3u8?expires=1787004932&sig=nE5svdLynne2uwy3SNyFzEhZqf6oApIEnmzukohVMa8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#18</span>ATN News</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/da6WMXAk/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#19</span>Ekhon</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ekhon/playlist.m3u8?expires=1787004866&sig=dtJSHU3GSOGxBnelOkUt7KjxCqpwa4dOMIeTRMoipqY">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#20</span>Boishakhi</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/1d3uG9VCgrR9DRtWZM57/index.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#21</span>Channel 9</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/channel9/playlist.m3u8?expires=1787005855&sig=sSSk_oaUW3Evjm7IQg2rby3CV2p-JT5aAoxMEss_eyI">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#22</span>Bangla Vision</span>
-    <button class="watch-btn" data-src="https://tvsen5.aynaott.com/banglavision/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#23</span>SA</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/rELXiuUXqbgzPb06Npom/index.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#24</span>Deepto</span>
-    <button class="watch-btn" data-src="https://byphdgllyk.gpcdn.net/hls/DeeptoTV/0_1/index.m3u8?sessId=1551305">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#25</span>DBC News</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/pF66Tkz0qFwP2aMMqHyt/tracks-v1a1/mono.ts.m3u8?">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#26</span>Ananda</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/LeUAm4F1iixYns3s3Non/index.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#27</span>News 24</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/cdgr3tw6WoG7JyRnLbi0/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#28</span>Maasranga</span>
-    <button class="watch-btn" data-src="https://mtv.sunplex.live/MAASRANGA/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#29</span>Channel I</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/FNHpYvGZ7FkCE10PwTHm/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#30</span>Somoy</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/somoytv_copy_kore_lav_nai/playlist.m3u8?expires=1787022527&sig=-AItQ4iv8qf1IS1Y8we9qBjetpu2xbXaUCmWGxfslcs">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#31</span>ATN Bangla</span>
-    <button class="watch-btn" data-src="https://tvsen5.aynaott.com/P3y2URgG7LDe/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#32</span>My Tv</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/XMpHaEf0ANBhv8w6NWR7/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#33</span>Mohona Tv</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/AkyX5dunzju4cpo26dr7/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#34</span>Bijoy Tv</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/N8Xbo5vdwVU6sF43RsW0/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#35</span>Bangla Tv</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/39ee93nUbCCmm5LsyD4t/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#36</span>G</span>
-    <button class="watch-btn" data-src="https://app.ncare.live/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI2/gazibdz.stream/live-orgin/gazibdz.stream/chunks.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#37</span>Movie Bangla</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/moviebanglatv5/playlist.m3u8?expires=1786987952&sig=tWC4lr8rQrdHJ6audF1w84JUGwGqc9-IdI8FZ7bsf88">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#38</span>R</span>
-    <button class="watch-btn" data-src="https://tvsen5.aynaott.com/ba47dHpDk3Se/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#39</span>Channel S</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/kafi1tv/playlist.m3u8?expires=1786988013&sig=FpbBFRnNP1Ia1Kl9b13dfyD327wX-auXMBiygUT_qJE">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#40</span>T Sports</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/tsports/playlist.m3u8?expires=1787014631&sig=MwVdxeaOX-QIdVi1FkpTvOvvPIWTXscqsZl0kfEloa0">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#41</span>A Sports</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/zv68oqPDu7MZZwmHhRxt/tracks-v1a1/mono.ts.m3u8?">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#42</span>Willow</span>
-    <button class="watch-btn" data-src="https://warm-caverns-48629-92fab798385f.herokuapp.com/https://d36r8jifhgsk5j.cloudfront.net/Willow_TV540p.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#43</span>PTV Sports</span>
-    <button class="watch-btn" data-src="https://s1.itcnbd.live/PTV-Sports/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#44</span>Sony Sports TEN 1</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_sports_1_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#45</span>Sony Sports TEN 5</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_sports_5_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#46</span>Ten Cricket</span>
-    <button class="watch-btn" data-src="https://s2.itcnbd.live/server-2/stream/ten_cricket.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#47</span>Zee Bangla</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/zeebangla1/playlist.m3u8?expires=1787005551&sig=_eXGpoA9avykSr0_-xDvGZ5llRpwXt-e9Ug1r0rNjfM">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#48</span>Star Jalsha</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/starjalsha1/playlist.m3u8?expires=1787005609&sig=SePxrHzcAWTclyXhViQqX26iE2LMKwixwZgCbPNhWKQ">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#49</span>Star Plus</span>
-    <button class="watch-btn" data-src="https://s3.itcnbd.live/channel/6b0f236ae9a367ed.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#50</span>Zee Cinema</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=zee_cinema_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#51</span>Colors Bangla Cinema</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/colorsbanglaceanama_copy_kore_lav_nai/playlist.m3u8?expires=1787023171&sig=CsYObubOvkbs3cKVZgBa1nUf-7XrhaLGtVMxURo1hBw">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#52</span>Enter 10 Bangla</span>
-    <button class="watch-btn" data-src="https://live-bangla.akamaized.net/liveabr/pub-iobanglakp3sff/live_360p/chunks.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#53</span>Z Bangla Sonar</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/tanhatv/playlist.m3u8?expires=1787005746&sig=79tb5aVgL-n9BWLM8AolDG2SzogUADOMljg5TGjo_oA">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#54</span>Sony Max</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_max&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#55</span>COLORS BANGLA</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/colorsbangla1/playlist.m3u8?expires=1787005999&sig=Balwtw7eXcMw_8_8m__yzUds4laaxwfqs9Uk0x0gXa8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#56</span>Sun Bangla</span>
-    <button class="watch-btn" data-src="https://tvex.easypecker.com/SUN-BANGLA-HD/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#57</span>Tv</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=and_tv_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#58</span>ZB Cartoon</span>
-    <button class="watch-btn" data-src="https://server.zillarbarta.com/zbcatun/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#59</span>9XM Music</span>
-    <button class="watch-btn" data-src="https://9xjio.wiseplayout.com/9XM/HD720/HD720.m3u8?nocache=1784939471635">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#60</span>ZOOM Music</span>
-    <button class="watch-btn" data-src="https://d2esfk1pb9cdob.cloudfront.net/chunklist_1.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#61</span>Goldmines SD</span>
-    <button class="watch-btn" data-src="https://cdn-2.pishow.tv/live/1459/master.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#62</span>Duronto</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/6xyZ3N4oHv2KBJdB6W4p/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#63</span>Sony Sab</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonysab_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#64</span>Sony YaY</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonyyay&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#65</span>Sony BBC Earth</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonybbc_earth_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#66</span>Sony Max 2</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonymax_2&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#67</span>Discovery</span>
-    <button class="watch-btn" data-src="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=discovery_hd&e=.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#68</span>BTV</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/btvx/playlist.m3u8?expires=1787005453&sig=d2h8mQlItqIhCyQQEAGpWxxbmGuecDU7FEKvHt1Q34o">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#69</span>BTV Chattogram</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/TjGR1GcxKetHNVcMVxbq/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#70</span>Sangsad Television</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/sangsadtvtv/playlist.m3u8?expires=1787012664&sig=Rdz_Sbb8M6hmamhJZSdTvvuTPWMZ4fj9pu4yR6CIi3I">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#71</span>NTV</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ntv/playlist.m3u8?expires=1787014983&sig=--nXKK7ukkGegdP285RJj6X2rBIoQMlszIjVQNh6Czc">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#72</span>Jamuna</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/jumunatv_copy_kore_lav_nai_mc_tor_ki_baprer_link/playlist.m3u8?expires=1787024565&sig=BoWrn98R_BTerXDHEy4GsahBvrEvMPdAvYL6fJqVBFU">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#73</span>Tasin</span>
-    <button class="watch-btn" data-src="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/Rangdhonutv3/playlist.m3u8?expires=1786988305&sig=dFvPZOf222cURInJwtFJJWe1qSRECmOvQHmohYO0HnY">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#74</span>StarSports</span>
-    <button class="watch-btn" data-src="https://tvsen7.aynascope.net/Sports1/tracks-v1a1/mono.ts.m3u8" tabindex="1">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#75</span>Sangeet Bangla</span>
-    <button class="watch-btn" data-src="https://cdn-4.pishow.tv/live/1143/1143_1.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#76</span>Tom & Jerry</span>
-    <button class="watch-btn" data-src="https://live20.bozztv.com/giatvplayout7/giatv-208314/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#77</span>B4U</span>
-    <button class="watch-btn" data-src="https://cdn-2.pishow.tv/live/415/415_2.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#78</span>Bangla Vision</span>
-    <button class="watch-btn" data-src="https://tvsen5.aynaott.com/banglavision/tracks-v1a1/mono.ts.m3u8?e=1782665440">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#79</span>Boishakhi Tv</span>
-    <button class="watch-btn" data-src="https://boishakhi.sonarbanglatv.com/boishakhi/boishakhitv/index.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#80</span>Colors Bangla</span>
-    <button class="watch-btn" data-src="https://footfytv.pro/proxy/direct?url=http://103.165.93.31:8095/colorsBangla/tracks-v1a1/mono.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#81</span>EkushETV</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/y4mEVZNAbeNWTbd6Z2Pw/tracks-v1a1/mono.ts.m3u8?e=1782665440">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#82</span>Jamuna Tv</span>
-    <button class="watch-btn" data-src="https://tvsen6.aynaott.com/KGdZEdA7qQ43dmPkgk1j/tracks-v1a1/mono.ts.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#83</span>Music India</span>
-    <button class="watch-btn" data-src="https://cdn-2.pishow.tv/live/226/226_2.m3u8">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#84</span>RTV</span>
-    <button class="watch-btn" data-src="https://tvsen5.aynaott.com/RtvHD/tracks-v1a1/mono.ts.m3u8?e=1782665440">WATCH</button>
-  </div>
-  <div class="channel-item">
-    <span class="channel-name"><span class="channel-num">#85</span>Tsports</span>
-    <button class="watch-btn" data-src="https://s1.itcnbd.live/T-Sports-HD/tracks-v1a1/mono.m3u8?nocache=1783826412104">WATCH</button>
-  </div>
+<div class="chips" id="categoryChips">
+    <div class="chip active" tabindex="0" data-category="all" onclick="filterChannels('all', this)">All</div>
+    <div class="chip" tabindex="0" data-category="sports" onclick="filterChannels('sports', this)">Sports</div>
+    <div class="chip" tabindex="0" data-category="news" onclick="filterChannels('news', this)">News</div>
+    <div class="chip" tabindex="0" data-category="entertainment" onclick="filterChannels('entertainment', this)">Entertainment</div>
 </div>
 
-<footer>
-  <p>&copy; 2026 Tasin TV</p>
-</footer>
+<div class="channel-grid" id="channelGrid">
+    <!-- BTV -->
+    <div class="channel-card" tabindex="0" data-category="news" data-channel="BTV" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/btv1/playlist.m3u8?expires=1787033025&sig=aocSLUL3SXmSzu2jDEuJK7t15VY6g41fA8k_DJrGOB8" data-title="BTV" onclick="loadChannel(this)">
+        <div class="card-thumb"><img alt="BTV" src="https://via.placeholder.com/50"></div>
+        <div class="card-body">
+            <h4>BTV</h4>
+            <div class="category">News</div>
+        </div>
+    </div>
+    
+    <!-- T Sports -->
+    <div class="channel-card" tabindex="0" data-category="sports" data-channel="T Sports" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/tsports/playlist.m3u8?expires=1787014631&sig=MwVdxeaOX-QIdVi1FkpTvOvvPIWTXscqsZl0kfEloa0" data-title="T Sports" onclick="loadChannel(this)">
+        <div class="card-thumb"><img alt="T Sports" src="https://via.placeholder.com/50"></div>
+        <div class="card-body">
+            <h4>T Sports</h4>
+            <div class="category">Sports</div>
+        </div>
+    </div>
+
+    <!-- Zee Bangla -->
+    <div class="channel-card" tabindex="0" data-category="entertainment" data-channel="Zee Bangla" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/zeebangla1/playlist.m3u8?expires=1787005551&sig=_eXGpoA9avykSr0_-xDvGZ5llRpwXt-e9Ug1r0rNjfM" data-title="Zee Bangla" onclick="loadChannel(this)">
+        <div class="card-thumb"><img alt="Zee Bangla" src="https://via.placeholder.com/50"></div>
+        <div class="card-body">
+            <h4>Zee Bangla</h4>
+            <div class="category">Entertainment</div>
+        </div>
+    </div>
+    
+    <!-- Note: You can paste the rest of your channel <div> blocks here. Just ensure you add tabindex="0" to each .channel-card so the D-pad can select them. -->
+</div>
 
 <script>
-var v=document.getElementById('player'),p=document.getElementById('nowPlaying'),d=document.getElementById('directLink'),w=document.getElementById('directLinkWrap'),h=null;
-function play(s,n){
-if(!s)return;
-p.textContent='Loading...';
-w.style.display='none';
-if(h){h.destroy();h=null;}
-v.src=s;v.load();v.play().catch(function(){});
-d.href=s;w.style.display='block';
-setTimeout(function(){if(v.readyState<2)loadHls(s);},1200);
-}
-function loadHls(s){
-var x=document.createElement('script');
-x.src='https://cdn.jsdelivr.net/npm/hls.js@1.4.14/dist/hls.min.js';
-x.onload=function(){
-if(typeof Hls!=='undefined'&&Hls.isSupported()){
-if(h)h.destroy();
-h=new Hls({maxBufferLength:5,liveSyncDuration:2});
-h.loadSource(s);h.attachMedia(v);
-h.on(Hls.Events.MANIFEST_PARSED,function(){v.play().catch(function(){});});
-}};
-document.body.appendChild(x);
-}
-document.querySelectorAll('.watch-btn').forEach(function(b){
-b.addEventListener('click',function(){var s=b.getAttribute('data-src');play(s,b.closest('.channel-item').querySelector('.channel-name').textContent.trim());window.scrollTo(0,0);});
-b.addEventListener('keydown',function(e){if(e.keyCode===13||e.keyCode===23){e.preventDefault();this.click();}});
-});
-window.addEventListener('load',function(){var b=document.querySelector('.watch-btn');if(b)b.focus();});
-</script>
+    var video = document.getElementById('livePlayer');
+    var hls = null;
 
+    // Feature Phone D-PAD Support: Trigger click on Enter key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            if (document.activeElement && document.activeElement.hasAttribute('tabindex')) {
+                document.activeElement.click();
+            }
+        }
+    });
+
+    function loadChannel(element) {
+        var stream = element.getAttribute('data-stream');
+        var title = element.getAttribute('data-title');
+        
+        if (stream && stream !== '#') {
+            document.getElementById('videoTitle').textContent = title + " - Loading...";
+            
+            // Remove active class from all, add to current
+            document.querySelectorAll('.channel-card').forEach(function(c) { c.classList.remove('active-card'); });
+            element.classList.add('active-card');
+
+            if (Hls.isSupported()) {
+                if (hls) { hls.destroy(); }
+                hls = new Hls({ enableWorker: false }); // Disable worker for lower RAM usage on feature phones
+                hls.loadSource(stream);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    document.getElementById('videoTitle').textContent = title + " (Playing)";
+                    video.play().catch(function(e){ console.log(e); });
+                    video.focus(); // Focus video player so D-pad can control volume/play
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = stream;
+                document.getElementById('videoTitle').textContent = title + " (Playing)";
+                video.play();
+                video.focus();
+            } else {
+                alert("Streaming not supported on this browser.");
+            }
+        }
+    }
+
+    function filterChannels(category, element) {
+        // Update active chip
+        document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+        element.classList.add('active');
+
+        // Filter list
+        var cards = document.querySelectorAll('.channel-card');
+        cards.forEach(function(card) {
+            if (category === 'all' || card.getAttribute('data-category') === category) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
 </body>
 </html>
