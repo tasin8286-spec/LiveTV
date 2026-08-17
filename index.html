@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>LiveTV</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#0a0a0f;color:#fff;overflow-x:hidden}
@@ -136,6 +135,8 @@ if(state)btn.classList.add(state);
 activeBtn=btn;
 }
 
+var hlsScriptLoading=false;
+
 function cleanup(){
 if(hls){
 try{hls.destroy();}catch(e){}
@@ -148,31 +149,17 @@ v.load();
 }catch(e){}
 }
 
-function play(b){
-var u=b.getAttribute('data-stream');
-if(!u)return;
-
-// guard against rapid repeated presses (common on button-phone D-pad key repeat)
-var now=Date.now();
-if(busy&&u===currentUrl)return;
-if(now-lastTap<400&&u===currentUrl)return;
-lastTap=now;
-
-busy=true;
-currentUrl=u;
-setBtnState(b,'loading');
-setInfo('Loading...');
-cleanup();
-
-if(window.Hls&&Hls.isSupported()){
+function startHls(u,b){
+if(u!==currentUrl)return;
+if(hls){try{hls.destroy();}catch(e){}hls=null;}
 hls=new Hls({
 capLevelToPlayerSize:true,
 startLevel:-1,
 abrEwmaDefaultEstimate:500000,
-maxBufferLength:20,
-maxMaxBufferLength:30,
-maxBufferSize:30*1000*1000,
+maxBufferLength:5,
+maxMaxBufferLength:10,
 backBufferLength:15,
+liveSyncDuration:2,
 liveSyncDurationCount:3,
 liveMaxLatencyDurationCount:10,
 enableWorker:true,
@@ -190,6 +177,7 @@ nudgeMaxRetry:6
 });
 
 hls.on(Hls.Events.MANIFEST_PARSED,function(){
+if(u!==currentUrl)return;
 busy=false;
 var p=v.play();
 if(p&&p.catch)p.catch(function(){setInfo('Tap WATCH again to play');});
@@ -217,27 +205,86 @@ break;
 
 hls.loadSource(u);
 hls.attachMedia(v);
+}
 
-}else if(v.canPlayType('application/vnd.apple.mpegurl')){
-v.src=u;
-v.addEventListener('loadedmetadata',function onLoaded(){
-v.removeEventListener('loadedmetadata',onLoaded);
-busy=false;
-var p=v.play();
-if(p&&p.catch)p.catch(function(){setInfo('Tap WATCH again to play');});
-});
-v.addEventListener('error',function onErr(){
-v.removeEventListener('error',onErr);
-busy=false;
-setBtnState(b,null);
-setInfo('Channel unavailable, try another');
-});
-
+// Load hls.js only the first time it's actually needed (keeps initial page load fast),
+// then reuse the cached library on every channel switch after that.
+function loadHlsAndPlay(u,b){
+if(u!==currentUrl)return;
+if(window.Hls&&Hls.isSupported()){
+startHls(u,b);
+return;
+}
+if(hlsScriptLoading)return;
+hlsScriptLoading=true;
+var x=document.createElement('script');
+x.src='https://cdn.jsdelivr.net/npm/hls.js@1.4.14/dist/hls.min.js';
+x.onload=function(){
+hlsScriptLoading=false;
+if(u!==currentUrl)return;
+if(window.Hls&&Hls.isSupported()){
+startHls(u,b);
 }else{
 busy=false;
 setBtnState(b,null);
 setInfo('Streaming not supported on this device');
-return;
+}
+};
+x.onerror=function(){
+hlsScriptLoading=false;
+if(u!==currentUrl)return;
+busy=false;
+setBtnState(b,null);
+setInfo('Failed to load player, try again');
+};
+document.body.appendChild(x);
+}
+
+function play(b){
+var u=b.getAttribute('data-stream');
+if(!u)return;
+
+// guard against rapid repeated presses (common on button-phone D-pad key repeat)
+var now=Date.now();
+if(busy&&u===currentUrl)return;
+if(now-lastTap<400&&u===currentUrl)return;
+lastTap=now;
+
+busy=true;
+currentUrl=u;
+setBtnState(b,'loading');
+setInfo('Loading...');
+cleanup();
+
+// Fast path: if the browser can play HLS natively (Safari/iOS) and hls.js
+// isn't already loaded, try native playback first instead of waiting on a
+// script download - this is what makes Tasin TV feel instant to start.
+if(!(window.Hls&&Hls.isSupported())&&v.canPlayType('application/vnd.apple.mpegurl')){
+var settled=false;
+v.src=u;
+v.load();
+var p0=v.play();
+if(p0&&p0.catch)p0.catch(function(){});
+
+v.addEventListener('loadedmetadata',function onLoaded(){
+v.removeEventListener('loadedmetadata',onLoaded);
+if(u!==currentUrl)return;
+settled=true;
+busy=false;
+});
+v.addEventListener('error',function onErr(){
+v.removeEventListener('error',onErr);
+if(settled||u!==currentUrl)return;
+loadHlsAndPlay(u,b);
+});
+setTimeout(function(){
+if(!settled&&u===currentUrl&&v.readyState<2){
+loadHlsAndPlay(u,b);
+}
+},1200);
+
+}else{
+loadHlsAndPlay(u,b);
 }
 
 window.scrollTo(0,0);
