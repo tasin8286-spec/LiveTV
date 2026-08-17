@@ -129,7 +129,7 @@ video {
     color: #888;
 }
 
-/* Hide unsupported/heavy elements */
+/* Hide unsupported or heavy elements */
 .video-overlay, .nav-btn, .search-overlay, .telegram-float, #rdGate, #premiumAdOverlay {
     display: none !important;
 }
@@ -184,15 +184,13 @@ video {
             <div class="category">Entertainment</div>
         </div>
     </div>
-    
-    <!-- Note: You can paste the rest of your channel <div> blocks here. Just ensure you add tabindex="0" to each .channel-card so the D-pad can select them. -->
 </div>
 
 <script>
     var video = document.getElementById('livePlayer');
     var hls = null;
 
-    // Feature Phone D-PAD Support: Trigger click on Enter key
+    // Feature Phone D-PAD keypress handler
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             if (document.activeElement && document.activeElement.hasAttribute('tabindex')) {
@@ -205,42 +203,64 @@ video {
         var stream = element.getAttribute('data-stream');
         var title = element.getAttribute('data-title');
         
-        if (stream && stream !== '#') {
-            document.getElementById('videoTitle').textContent = title + " - Loading...";
-            
-            // Remove active class from all, add to current
-            document.querySelectorAll('.channel-card').forEach(function(c) { c.classList.remove('active-card'); });
-            element.classList.add('active-card');
+        if (!stream || stream === '#') return;
 
-            if (Hls.isSupported()) {
-                if (hls) { hls.destroy(); }
-                hls = new Hls({ enableWorker: false }); // Disable worker for lower RAM usage on feature phones
-                hls.loadSource(stream);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    document.getElementById('videoTitle').textContent = title + " (Playing)";
-                    video.play().catch(function(e){ console.log(e); });
-                    video.focus(); // Focus video player so D-pad can control volume/play
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = stream;
+        document.getElementById('videoTitle').textContent = title + " - Loading...";
+
+        // Highlight active channel card
+        document.querySelectorAll('.channel-card').forEach(function(c) { 
+            c.classList.remove('active-card'); 
+        });
+        element.classList.add('active-card');
+
+        // 1. Native HTML5 HLS Playback (Best for KaiOS and Feature Phone WebKit)
+        if (video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL')) {
+            video.src = stream;
+            video.load();
+            startPlayback(title);
+        } 
+        // 2. HLS.JS Fallback (For modern mobile browsers)
+        else if (window.MediaSource && Hls.isSupported()) {
+            if (hls) { hls.destroy(); }
+            hls = new Hls({ enableWorker: false, lowLatencyMode: false });
+            hls.loadSource(stream);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                startPlayback(title);
+            });
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                if (data.fatal) {
+                    document.getElementById('videoTitle').textContent = "Stream Error / Expired Link";
+                }
+            });
+        } 
+        // 3. Direct Source Forced Fallback
+        else {
+            video.src = stream;
+            startPlayback(title);
+        }
+    }
+
+    function startPlayback(title) {
+        video.muted = false;
+        var playPromise = video.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(function() {
                 document.getElementById('videoTitle').textContent = title + " (Playing)";
-                video.play();
                 video.focus();
-            } else {
-                alert("Streaming not supported on this browser.");
-            }
+            }).catch(function(error) {
+                document.getElementById('videoTitle').textContent = title + " (Press PLAY on player)";
+                video.focus();
+            });
         }
     }
 
     function filterChannels(category, element) {
-        // Update active chip
         document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
         element.classList.add('active');
 
-        // Filter list
-        var cards = document.querySelectorAll('.channel-card');
-        cards.forEach(function(card) {
+        document.querySelectorAll('.channel-card').forEach(function(card) {
             if (category === 'all' || card.getAttribute('data-category') === category) {
                 card.style.display = 'flex';
             } else {
