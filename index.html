@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rangdhonu TV</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#0a0a0f;color:#fff;overflow-x:hidden}
+header{background:#14121a;padding:8px;border-bottom:1px solid #333;text-align:center;position:sticky;top:0;z-index:100}
+h1{font-size:14px;font-weight:bold}
+.container{padding:6px}
+.player{background:#000;border:1px solid #222;padding:4px;margin:6px 0}
+video{width:100%;height:auto;display:block;background:#000}
+.info{font-size:8px;color:#999;padding:4px;background:#111;border:1px solid #222;margin:4px 0}
+.channels{margin:6px 0;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.ch{display:flex;flex-direction:column;gap:2px;padding:5px;background:#14121a;border:1px solid #222;align-items:center;text-align:center}
+.ch-name{font-size:9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word}
+.btn{background:#a78bfa;color:#000;border:none;padding:4px 6px;font-size:8px;font-weight:bold;cursor:pointer;width:100%;margin-top:2px}
+.btn:active{opacity:.8}
+footer{text-align:center;padding:8px;font-size:8px;color:#666;border-top:1px solid #222;margin-top:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Rangdhonu</h1>
+</header>
+
+<div class="container">
+  <div class="player">
+    <video id="player" controls playsinline></video>
+  </div>
+  <div class="info">Tap Watch to play</div>
+  
+  <div class="channels">
+    <div class="ch"><span class="ch-name">BTV</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/btvx/playlist.m3u8?expires=1787005453&sig=d2h8mQlItqIhCyQQEAGpWxxbmGuecDU7FEKvHt1Q34o" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">BTV Chattogram</span><button class="btn" data-stream="https://tvsen6.aynaott.com/TjGR1GcxKetHNVcMVxbq/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sangsad Television</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/sangsadtvtv/playlist.m3u8?expires=1787012664&sig=Rdz_Sbb8M6hmamhJZSdTvvuTPWMZ4fj9pu4yR6CIi3I" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">NTV</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ntv/playlist.m3u8?expires=1787014983&sig=--nXKK7ukkGegdP285RJj6X2rBIoQMlszIjVQNh6Czc" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Jamuna</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/jumunatv_copy_kore_lav_nai_mc_tor_ki_baprer_link/playlist.m3u8?expires=1787024565&sig=BoWrn98R_BTerXDHEy4GsahBvrEvMPdAvYL6fJqVBFU" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Rangdhonu</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/Rangdhonutv3/playlist.m3u8?expires=1786988305&sig=dFvPZOf222cURInJwtFJJWe1qSRECmOvQHmohYO0HnY" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Channel 1</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/Channel1/playlist.m3u8?expires=1787005390&sig=otCHvitY_0Ze1_XCFnzDJ4o5y1RlBD5gF94c4438KaQ" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Channel 24</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/chaneel24/playlist.m3u8?expires=1787005029&sig=63R7CX6CjMKYowSUiuO3XQprDJCoO7dh-IGaB-UEKrw" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Ekattor</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ekattor_copy_kore_lav_nai_mc_tor_ki_baprer_link/playlist.m3u8?expires=1787024812&sig=l6tMtp9UC5RfJRsC_bzIEqr112_UE5krZUVBg48dmG4" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Independent</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/indepinden/playlist.m3u8?expires=1787004932&sig=nE5svdLynne2uwy3SNyFzEhZqf6oApIEnmzukohVMa8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">ATN News</span><button class="btn" data-stream="https://tvsen6.aynaott.com/da6WMXAk/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Ekhon</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/ekhon/playlist.m3u8?expires=1787004866&sig=dtJSHU3GSOGxBnelOkUt7KjxCqpwa4dOMIeTRMoipqY" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Boishakhi</span><button class="btn" data-stream="https://tvsen6.aynaott.com/1d3uG9VCgrR9DRtWZM57/index.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Channel 9</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/channel9/playlist.m3u8?expires=1787005855&sig=sSSk_oaUW3Evjm7IQg2rby3CV2p-JT5aAoxMEss_eyI" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Bangla Vision</span><button class="btn" data-stream="https://tvsen5.aynaott.com/banglavision/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">SA</span><button class="btn" data-stream="https://tvsen6.aynaott.com/rELXiuUXqbgzPb06Npom/index.m3u8 " onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Deepto</span><button class="btn" data-stream="https://byphdgllyk.gpcdn.net/hls/DeeptoTV/0_1/index.m3u8?sessId=1551305" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">DBC News</span><button class="btn" data-stream="https://tvsen6.aynaott.com/pF66Tkz0qFwP2aMMqHyt/tracks-v1a1/mono.ts.m3u8?" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Ananda</span><button class="btn" data-stream="https://tvsen6.aynaott.com/LeUAm4F1iixYns3s3Non/index.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">News 24</span><button class="btn" data-stream="https://tvsen6.aynaott.com/cdgr3tw6WoG7JyRnLbi0/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Maasranga</span><button class="btn" data-stream="https://mtv.sunplex.live/MAASRANGA/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Channel I</span><button class="btn" data-stream="https://tvsen6.aynaott.com/FNHpYvGZ7FkCE10PwTHm/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Somoy</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/somoytv_copy_kore_lav_nai/playlist.m3u8?expires=1787022527&sig=-AItQ4iv8qf1IS1Y8we9qBjetpu2xbXaUCmWGxfslcs" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">ATN Bangla</span><button class="btn" data-stream="https://tvsen5.aynaott.com/P3y2URgG7LDe/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">My Tv</span><button class="btn" data-stream="https://tvsen6.aynaott.com/XMpHaEf0ANBhv8w6NWR7/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Mohona Tv</span><button class="btn" data-stream="https://tvsen6.aynaott.com/AkyX5dunzju4cpo26dr7/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Bijoy Tv</span><button class="btn" data-stream="https://tvsen6.aynaott.com/N8Xbo5vdwVU6sF43RsW0/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Bangla Tv</span><button class="btn" data-stream="https://tvsen6.aynaott.com/39ee93nUbCCmm5LsyD4t/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">G</span><button class="btn" data-stream="https://app.ncare.live/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI2/gazibdz.stream/live-orgin/gazibdz.stream/chunks.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Movie Bangla</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/moviebanglatv5/playlist.m3u8?expires=1786987952&sig=tWC4lr8rQrdHJ6audF1w84JUGwGqc9-IdI8FZ7bsf88" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">R</span><button class="btn" data-stream="https://tvsen5.aynaott.com/ba47dHpDk3Se/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Channel S</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/kafi1tv/playlist.m3u8?expires=1786988013&sig=FpbBFRnNP1Ia1Kl9b13dfyD327wX-auXMBiygUT_qJE" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">T Sports</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/tsports/playlist.m3u8?expires=1787014631&sig=MwVdxeaOX-QIdVi1FkpTvOvvPIWTXscqsZl0kfEloa0" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">A Sports</span><button class="btn" data-stream="https://tvsen6.aynaott.com/zv68oqPDu7MZZwmHhRxt/tracks-v1a1/mono.ts.m3u8?" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Willow</span><button class="btn" data-stream="https://warm-caverns-48629-92fab798385f.herokuapp.com/https://d36r8jifhgsk5j.cloudfront.net/Willow_TV540p.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Sports 1</span><button class="btn" data-stream="https://tvex.easypecker.com/StarSports1/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Sports 2</span><button class="btn" data-stream="https://tvsen7.aynascope.net/ssport2hd/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Sports SL 1</span><button class="btn" data-stream="https://s3.itcnbd.live/channel/ea25a516d781cb1c.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">PTV Sports</span><button class="btn" data-stream="https://s1.itcnbd.live/PTV-Sports/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Sports TEN 1</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_sports_1_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Sports TEN 5</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_sports_5_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Ten Cricket</span><button class="btn" data-stream="https://s2.itcnbd.live/server-2/stream/ten_cricket.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Zee Bangla</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/zeebangla1/playlist.m3u8?expires=1787005551&sig=_eXGpoA9avykSr0_-xDvGZ5llRpwXt-e9Ug1r0rNjfM" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Jalsha</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/starjalsha1/playlist.m3u8?expires=1787005609&sig=SePxrHzcAWTclyXhViQqX26iE2LMKwixwZgCbPNhWKQ" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Plus</span><button class="btn" data-stream="https://s3.itcnbd.live/channel/6b0f236ae9a367ed.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">SONY AATH</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/sonnyath_copy_kore_lav_nai/playlist.m3u8?expires=1787024055&sig=_zucrr1Zvvq8Ev5hcPEUqSs8pMsrXo82T5G3RgvNQsQ" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Zee Cinema</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=zee_cinema_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Colors Bangla Cinema</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/colorsbanglaceanama_copy_kore_lav_nai/playlist.m3u8?expires=1787023171&sig=CsYObubOvkbs3cKVZgBa1nUf-7XrhaLGtVMxURo1hBw" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Enter 10 Bangla</span><button class="btn" data-stream="https://live-bangla.akamaized.net/liveabr/pub-iobanglakp3sff/live_360p/chunks.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Z Bangla Sonar</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/tanhatv/playlist.m3u8?expires=1787005746&sig=79tb5aVgL-n9BWLM8AolDG2SzogUADOMljg5TGjo_oA" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Max</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sony_max&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">COLORS BANGLA</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/stream/colorsbangla1/playlist.m3u8?expires=1787005999&sig=Balwtw7eXcMw_8_8m__yzUds4laaxwfqs9Uk0x0gXa8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sun Bangla</span><button class="btn" data-stream="https://tvex.easypecker.com/SUN-BANGLA-HD/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Jalsha Movies</span><button class="btn" data-stream="https://footfytv.pro/proxy/direct?url=http%3A%2F%2F103.165.93.31%3A8095%2FjalshaMovies%2Ftracks-v1a1%2Fmono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Tv</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=and_tv_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">ZB Cartoon</span><button class="btn" data-stream="https://server.zillarbarta.com/zbcatun/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sangeet Bangla</span><button class="btn" data-stream="https://s1.itcnbd.live/SangeetBangla/tracks-v1a1/mono.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">9XM Music</span><button class="btn" data-stream="https://9xjio.wiseplayout.com/9XM/HD720/HD720.m3u8?nocache=1784939471635" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">ZOOM Music</span><button class="btn" data-stream="https://d2esfk1pb9cdob.cloudfront.net/chunklist_1.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Goldmines SD</span><button class="btn" data-stream="https://cdn-2.pishow.tv/live/1459/master.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Duronto</span><button class="btn" data-stream="https://tvsen6.aynaott.com/6xyZ3N4oHv2KBJdB6W4p/tracks-v1a1/mono.ts.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Sab</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonysab_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony YaY</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonyyay&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony BBC Earth</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonybbc_earth_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Max 2</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonymax_2&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Sony Pix</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=sonypix_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Discovery</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=discovery_hd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">B4U Movie</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=b4u_movies&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">HUM</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=hum_masala&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Animal Planet</span><button class="btn" data-stream="https://digitalotthub.com/tv/toffee-by-maruf/live.php?id=animal_planet_sd&e=.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">B4U Music</span><button class="btn" data-stream="https://rangdhonu-proxy.tasinazad2009.workers.dev/?url=https%3A%2F%2Fs3.itcnbd.live%2Fchannel%2F6f6b7b6d25fbd0e6.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Zee Bollywood</span><button class="btn" data-stream="https://s3.itcnbd.live/channel/a5979fd53c01d1b2.m3u8" onclick="play(this)">WATCH</button></div>
+    <div class="ch"><span class="ch-name">Star Gold</span><button class="btn" data-stream="https://s3.itcnbd.live/channel/f5dd87a5c3b03131.m3u8" onclick="play(this)">WATCH</button></div>
+  </div>
+</div>
+
+<footer>&copy; 2026 Rangdhonu</footer>
+
+<script>
+var v=document.getElementById('player'),h=null;
+function play(b){
+var u=b.getAttribute('data-stream');
+if(!u)return;
+v.src=u;
+if(typeof Hls!=='undefined'&&Hls.isSupported()){
+if(h)h.destroy();
+h=new Hls({maxBufferLength:5,liveSyncDuration:2});
+h.loadSource(u);
+h.attachMedia(v);
+h.on(Hls.Events.MANIFEST_PARSED,function(){v.play();});
+}
+window.scrollTo(0,0);
+}
+</script>
+
+</body>
+</html>
