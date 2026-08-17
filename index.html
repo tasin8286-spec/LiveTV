@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Rangdhonu TV</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden}
@@ -14,7 +14,7 @@ h1{font-size:16px;font-weight:bold;color:#fff}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .player-section{flex:0 0 auto;padding:6px;background:#000}
 .video-container{position:relative;width:100%;background:#000;border:1px solid #222}
-video{width:100%;height:auto;display:block;background:#000}
+video{width:100%;height:auto;display:block;background:#000;object-fit:contain}
 .video-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:6px;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,transparent 60%,rgba(0,0,0,.3) 100%)}
 .video-top{display:flex;justify-content:space-between;align-items:flex-start}
 .video-title{font-size:12px;font-weight:bold;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.8);max-width:70%}
@@ -27,7 +27,7 @@ video{width:100%;height:auto;display:block;background:#000}
 .ch{display:flex;flex-direction:column;gap:2px;padding:4px;background:#14121a;border:1px solid #333;align-items:stretch;text-align:center;border-left:3px solid #ef4444}
 .ch-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word;line-height:1.2}
 .btn{background:#ef4444;color:#fff;border:none;padding:4px 6px;font-size:8px;font-weight:bold;cursor:pointer;width:100%;flex-shrink:0}
-.btn:active{background:#d63838;opacity:.9}
+.btn:active,.btn:focus{background:#ef4444;opacity:1;outline:none}
 footer{text-align:center;padding:6px;font-size:8px;color:#666;border-top:1px solid #333;flex-shrink:0}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -139,21 +139,121 @@ var channels=[
 ["Star Gold","https://s3.itcnbd.live/channel/f5dd87a5c3b03131.m3u8"]
 ];
 var v=document.getElementById('player'),h=null,title=document.getElementById('videoTitle'),cGrid=document.getElementById('channels');
+var retryTimer=null, currentUrl='', currentName='', retryCount=0;
+
+function cleanupPlayer(){
+  if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}
+  if(h){try{h.destroy();}catch(e){} h=null;}
+  try{v.pause();}catch(e){}
+  v.removeAttribute('src');
+  try{v.load();}catch(e){}
+}
+
+function nativeHls(){
+  return !!(v.canPlayType && (
+    v.canPlayType('application/vnd.apple.mpegurl') ||
+    v.canPlayType('application/x-mpegURL')
+  ));
+}
+
+function startNative(url){
+  cleanupPlayer();
+  currentUrl=url;
+  v.src=url;
+  v.load();
+  var p=v.play();
+  if(p&&p.catch)p.catch(function(){});
+}
+
+function startHls(url){
+  if(typeof Hls==='undefined' || !Hls.isSupported()) return false;
+
+  cleanupPlayer();
+
+  h=new Hls({
+    enableWorker:false,
+    lowLatencyMode:false,
+    maxBufferLength:6,
+    maxMaxBufferLength:10,
+    liveSyncDurationCount:3,
+    liveMaxLatencyDurationCount:6,
+    fragLoadingTimeOut:10000,
+    manifestLoadingTimeOut:10000,
+    levelLoadingTimeOut:10000,
+    fragLoadingMaxRetry:2,
+    manifestLoadingMaxRetry:2,
+    levelLoadingMaxRetry:2,
+    backBufferLength:0
+  });
+
+  h.loadSource(url);
+  h.attachMedia(v);
+
+  h.on(Hls.Events.MANIFEST_PARSED,function(){
+    retryCount=0;
+    var p=v.play();
+    if(p&&p.catch)p.catch(function(){});
+  });
+
+  h.on(Hls.Events.ERROR,function(event,data){
+    if(!data||!data.fatal)return;
+
+    if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
+      try{h.recoverMediaError();return;}catch(e){}
+    }
+
+    if(data.type===Hls.ErrorTypes.NETWORK_ERROR && retryCount<2){
+      retryCount++;
+      try{h.startLoad();return;}catch(e){}
+    }
+
+    if(retryCount<2){
+      retryCount++;
+      retryTimer=setTimeout(function(){playUrl(currentName,currentUrl);},1500);
+    }
+  });
+
+  return true;
+}
+
+function playUrl(name,url){
+  if(!url)return;
+  currentName=name;
+  currentUrl=url;
+  retryCount=0;
+  title.textContent=name;
+
+  // Native HLS is generally lighter and more compatible on feature-phone browsers.
+  if(nativeHls()){
+    startNative(url);
+    return;
+  }
+
+  if(!startHls(url)){
+    title.textContent=name+' — unsupported stream';
+  }
+}
+
 function play(b){
-var n=b.getAttribute('data-name'),u=b.getAttribute('data-stream');
-if(!u)return;
-title.textContent=n;
-v.src=u;
-if(typeof Hls!=='undefined'&&Hls.isSupported()){
-if(h)h.destroy();
-h=new Hls({maxBufferLength:3,liveSyncDuration:1.5,fragLoadingTimeOut:3000});
-h.loadSource(u);
-h.attachMedia(v);
-h.on(Hls.Events.MANIFEST_PARSED,function(){v.play().catch(function(){});});
-}else{
-v.play().catch(function(){});
+  playUrl(b.getAttribute('data-name'),b.getAttribute('data-stream'));
 }
-}
+
+v.addEventListener('error',function(){
+  // If native playback fails, try HLS.js when available.
+  if(currentUrl && typeof Hls!=='undefined' && Hls.isSupported() && !h){
+    startHls(currentUrl);
+  }
+});
+
+v.addEventListener('stalled',function(){
+  if(!currentUrl)return;
+  if(retryTimer)clearTimeout(retryTimer);
+  retryTimer=setTimeout(function(){
+    try{
+      if(v.readyState<3) v.load();
+    }catch(e){}
+  },4000);
+});
 channels.forEach(function(ch){
 var div=document.createElement('div');
 div.className='ch';
@@ -161,7 +261,15 @@ div.innerHTML='<span class="ch-name">'+ch[0]+'</span><button class="btn" data-na
 div.querySelector('.btn').onclick=function(){play(this);};
 cGrid.appendChild(div);
 });
-window.addEventListener('load',function(){if(channels.length>0)play(cGrid.querySelector('.btn'));});
+window.addEventListener('load',function(){
+  if(channels.length>0){
+    var first=cGrid.querySelector('.btn');
+    if(first){
+      title.textContent='Select Channel';
+      first.blur();
+    }
+  }
+});
 </script>
 
 </body>
